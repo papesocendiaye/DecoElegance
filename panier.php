@@ -36,7 +36,7 @@ foreach ($panier as $produit_id => $quantite) {
     <nav>
         <div class="logo">Déco Élégance</div>
         <ul>
-            <li><a href="index.php">Accueil</a></li>
+            <li><a href="index.html">Accueil</a></li>
             <li><a href="produits.php">Produits</a></li>
             <li><a href="panier.php">Panier</a></li>
             <li><a href="mon_compte.php">Mon compte</a></li>

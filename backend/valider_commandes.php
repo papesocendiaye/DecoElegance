@@ -9,28 +9,26 @@ if (!isset($_SESSION['utilisateur_id'])) {
 require_once 'Config.php';
 
 if (!isset($_SESSION['panier']) || empty($_SESSION['panier'])) {
-    echo "Votre panier est vide.";
+    header('Location: ../panier.php');
     exit();
 }
 
 $total = 0;
 foreach ($_SESSION['panier'] as $idProduit => $quantite) {
-    $stmt = $pdo->prepare("SELECT * FROM produits WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT prix FROM produits WHERE id = ?");
     $stmt->execute([$idProduit]);
-    $produit = $stmt->fetch();
-    $total += $produit['prix'] * $quantite;
+    $prix = $stmt->fetchColumn();
+    $total += $prix * $quantite;
 }
-
-$stmt = $pdo->prepare("INSERT INTO commandes (utilisateur_id, montant_total, statut) VALUES (?, ?, ?)");
+$stmt = $pdo->prepare("INSERT INTO commandes (utilisateur_id, montant_total, statut, date_commande) VALUES (?, ?, ?, NOW())");
 $stmt->execute([$_SESSION['utilisateur_id'], $total, 'en attente']);
 
 $commande_id = $pdo->lastInsertId();
 
 foreach ($_SESSION['panier'] as $idProduit => $quantite) {
-    $stmt = $pdo->prepare("SELECT * FROM produits WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT prix FROM produits WHERE id = ?");
     $stmt->execute([$idProduit]);
-    $produit = $stmt->fetch();
-    $prix_unitaire = $produit['prix'];
+    $prix_unitaire = $stmt->fetchColumn();
 
     $stmt = $pdo->prepare("INSERT INTO details_commande (commande_id, produit_id, quantite, prix_unitaire) VALUES (?, ?, ?, ?)");
     $stmt->execute([$commande_id, $idProduit, $quantite, $prix_unitaire]);
@@ -38,7 +36,6 @@ foreach ($_SESSION['panier'] as $idProduit => $quantite) {
 
 unset($_SESSION['panier']);
 
-echo "Commande validée ! Votre commande est en attente de traitement.";
 header('Location: ../mes_commandes.php');
 exit;
 ?>

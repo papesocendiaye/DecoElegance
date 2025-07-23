@@ -1,19 +1,15 @@
 <?php
-session_start();  // Démarrer la session
+session_start();
 
-// Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['utilisateur_id'])) {
     header('Location: mon_compte.php');
     exit();
 }
 
-// Connexion à la base de données
 require_once 'backend/Config.php';
 
-// Récupérer l'utilisateur connecté
 $utilisateur_id = $_SESSION['utilisateur_id'];
 
-// Récupérer les commandes de l'utilisateur
 $stmt = $pdo->prepare("SELECT * FROM commandes WHERE utilisateur_id = ? ORDER BY date_commande DESC");
 $stmt->execute([$utilisateur_id]);
 $commandes = $stmt->fetchAll();
@@ -25,6 +21,16 @@ $commandes = $stmt->fetchAll();
     <meta charset="UTF-8">
     <title>Mes Commandes | Déco Élégance</title>
     <link rel="stylesheet" href="assets/css/styles.css">
+    <script>
+        function toggleDetails(id) {
+            const details = document.getElementById('details-' + id);
+            if (details.style.display === 'none') {
+                details.style.display = 'table-row-group';
+            } else {
+                details.style.display = 'none';
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -32,7 +38,7 @@ $commandes = $stmt->fetchAll();
     <nav>
         <div class="logo">Déco Élégance</div>
         <ul>
-            <li><a href="index.php">Accueil</a></li>
+            <li><a href="index.html">Accueil</a></li>
             <li><a href="produits.php">Produits</a></li>
             <li><a href="panier.php">Panier</a></li>
             <li><a href="mon_compte.php">Mon compte</a></li>
@@ -40,72 +46,79 @@ $commandes = $stmt->fetchAll();
     </nav>
 </header>
 
-<section class="mes-commandes-container">
-    <h2>Mes Commandes</h2>
+<section class="commande-wrapper">
+    <div class="commande-container">
+        <h2>Mes Commandes</h2>
 
-    <?php if (empty($commandes)): ?>
-        <p class="aucune-commande">Vous n'avez pas encore passé de commande.</p>
-    <?php else: ?>
-        <table class="mes-commandes-table">
-            <thead>
-                <tr>
-                    <th>Commande ID</th>
-                    <th>Montant</th>
-                    <th>Statut</th>
-                    <th>Date</th>
-                </tr>
-            </thead>
-            <tbody>
+        <?php if (empty($commandes)): ?>
+            <p>Vous n'avez pas encore passé de commande.</p>
+        <?php else: ?>
+            <table class="commande-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Montant</th>
+                        <th>Statut</th>
+                        <th>Date</th>
+                        <th></th>
+                    </tr>
+                </thead>
+
+                <tbody>
                 <?php foreach ($commandes as $commande): ?>
                     <tr>
-                        <td><?= $commande['id']; ?></td>
-                        <td><?= $commande['montant_total']; ?>€</td>
-                        <td><?= $commande['statut']; ?></td>
-                        <td><?= $commande['date_commande']; ?></td>
-                    </tr>
-                    <tr class="commande-details-row" id="details-commande-<?= $commande['id']; ?>" style="display: none;">
-                        <td colspan="4">
-                            <div class="commande-details-box">
-                                <strong>Détails de la commande #<?= $commande['id']; ?></strong>
-                                <ul class="commande-details-list">
-                                    <?php
-                                    $stmtDetails = $pdo->prepare("
-                                        SELECT p.nom, c.quantite, c.prix_unitaire
-                                        FROM commande_produit c
-                                        JOIN produits p ON c.produit_id = p.id
-                                        WHERE c.commande_id = ?
-                                    ");
-                                    $stmtDetails->execute([$commande['id']]);
-                                    $produits = $stmtDetails->fetchAll();
-                                    foreach ($produits as $produit):
-                                    ?>
-                                        <li>
-                                            <?= htmlspecialchars($produit['nom']); ?> — 
-                                            <?= $produit['quantite']; ?> × 
-                                            <?= number_format($produit['prix_unitaire'], 2); ?>€
-                                        </li>
-                                    <?php endforeach; ?>
-                                </ul>
-                            </div>
+                        <td><?= $commande['id'] ?></td>
+                        <td><?= number_format($commande['montant_total'], 2) ?>€</td>
+                        <td><?= $commande['statut'] ?></td>
+                        <td><?= $commande['date_commande'] ?></td>
+                        <td><button class="btn-details" onclick="toggleDetails(<?= $commande['id'] ?>)">Détails</button></td>
+                        <td>
+                           <button  class="btn-details"><a style="text-decoration:none;color:FFF" href="backend/payer_commande.php?id=<?= $commande['id'] ?>" class="btn-payer">Payer</a></button>
+                           
                         </td>
                     </tr>
-                    <tr>
-                        <td colspan="4" class="commande-btn-cell">
-                            <button class="commande-detail-toggle" onclick="toggleDetails(<?= $commande['id']; ?>)">Détails</button>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
-    <?php endif; ?>
-</section>
 
-<script>
-function toggleDetails(id) {
-    const row = document.getElementById('details-commande-' + id);
-    row.style.display = (row.style.display === "none") ? "table-row" : "none";
-}
-</script>
+                  
+                    <tbody id="details-<?= $commande['id'] ?>" class="commande-details" style="display: none;">
+                        <tr>
+                            <td colspan="5">
+                                <table class="produits-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Produit</th>
+                                            <th>Quantité</th>
+                                            <th>Prix unitaire</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php
+                                            $stmt2 = $pdo->prepare("
+                                                SELECT p.nom, dc.quantite, dc.prix_unitaire
+                                                FROM details_commande dc
+                                                JOIN produits p ON p.id = dc.produit_id
+                                                WHERE dc.commande_id = ?
+                                            ");
+                                            $stmt2->execute([$commande['id']]);
+                                            $details = $stmt2->fetchAll();
+                                            foreach ($details as $ligne):
+                                        ?>
+                                            <tr>
+                                                <td><?= htmlspecialchars($ligne['nom']) ?></td>
+                                                <td><?= $ligne['quantite'] ?></td>
+                                                <td><?= number_format($ligne['prix_unitaire'], 2) ?>€</td>
+                                            </tr>
+                                        <?php endforeach; ?>
+                                    </tbody>
+                                </table>
+                            </td>
+                        </tr>
+                    </tbody>
+                <?php endforeach; ?>
+                </tbody>
+            </table>
+        <?php endif; ?>
+    </div>
+</section>
 
 </body>
 </html>

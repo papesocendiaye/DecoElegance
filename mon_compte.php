@@ -1,10 +1,10 @@
 <?php
-session_start();  
+// session_start();  
 
-if (isset($_SESSION['utilisateur_id'])) {
-    header('Location: index.html');  
-    exit();
-}
+// if (isset($_SESSION['utilisateur_id'])) {
+//     header('Location: index.html');  
+//     exit();
+// }
 ?>
 
 <!DOCTYPE html>
