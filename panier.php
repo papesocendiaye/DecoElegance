@@ -1,16 +1,13 @@
 <?php
-session_start();  // Démarrer la session
+session_start();  
 
-// Vérifier si le panier existe, sinon rediriger
 if (!isset($_SESSION['panier']) || empty($_SESSION['panier'])) {
     echo "Votre panier est vide.";
     exit();
 }
 
-// Connexion à la base de données
 require_once 'backend/Config.php';
 
-// Récupérer les produits du panier
 $panier = $_SESSION['panier'];
 $produits_panier = [];
 
