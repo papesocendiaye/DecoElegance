@@ -50,4 +50,6 @@ unset($_SESSION['panier']);
 
 // Afficher un message de confirmation
 echo "Commande validée ! Votre commande est en attente de traitement.";
+header('Location: ../mes_commandes.php');
+exit;
 ?>

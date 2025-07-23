@@ -1,8 +1,9 @@
 // Fonction pour ajouter un produit au panier
 document.querySelectorAll('.ajout-panier').forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function(){
         const productId = this.dataset.id;
         const quantity = 1; // Par défaut, on ajoute 1 produit
+        
 
         let panier = JSON.parse(localStorage.getItem('panier')) || [];
 

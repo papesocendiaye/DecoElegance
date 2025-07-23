@@ -8,7 +8,7 @@ if (!isset($_SESSION['utilisateur_id'])) {
 }
 
 // Connexion à la base de données
-require_once 'dbConfig.php';
+require_once 'backend/Config.php';
 
 // Récupérer l'utilisateur connecté
 $utilisateur_id = $_SESSION['utilisateur_id'];
@@ -40,29 +40,72 @@ $commandes = $stmt->fetchAll();
     </nav>
 </header>
 
-<section class="mes-commandes container">
+<section class="mes-commandes-container">
     <h2>Mes Commandes</h2>
+
     <?php if (empty($commandes)): ?>
-        <p>Vous n'avez pas encore passé de commande.</p>
+        <p class="aucune-commande">Vous n'avez pas encore passé de commande.</p>
     <?php else: ?>
-        <table>
-            <tr>
-                <th>Commande ID</th>
-                <th>Montant</th>
-                <th>Statut</th>
-                <th>Date</th>
-            </tr>
-            <?php foreach ($commandes as $commande): ?>
+        <table class="mes-commandes-table">
+            <thead>
                 <tr>
-                    <td><?= $commande['id']; ?></td>
-                    <td><?= $commande['montant_total']; ?>€</td>
-                    <td><?= $commande['statut']; ?></td>
-                    <td><?= $commande['date_commande']; ?></td>
+                    <th>Commande ID</th>
+                    <th>Montant</th>
+                    <th>Statut</th>
+                    <th>Date</th>
                 </tr>
-            <?php endforeach; ?>
+            </thead>
+            <tbody>
+                <?php foreach ($commandes as $commande): ?>
+                    <tr>
+                        <td><?= $commande['id']; ?></td>
+                        <td><?= $commande['montant_total']; ?>€</td>
+                        <td><?= $commande['statut']; ?></td>
+                        <td><?= $commande['date_commande']; ?></td>
+                    </tr>
+                    <tr class="commande-details-row" id="details-commande-<?= $commande['id']; ?>" style="display: none;">
+                        <td colspan="4">
+                            <div class="commande-details-box">
+                                <strong>Détails de la commande #<?= $commande['id']; ?></strong>
+                                <ul class="commande-details-list">
+                                    <?php
+                                    $stmtDetails = $pdo->prepare("
+                                        SELECT p.nom, c.quantite, c.prix_unitaire
+                                        FROM commande_produit c
+                                        JOIN produits p ON c.produit_id = p.id
+                                        WHERE c.commande_id = ?
+                                    ");
+                                    $stmtDetails->execute([$commande['id']]);
+                                    $produits = $stmtDetails->fetchAll();
+                                    foreach ($produits as $produit):
+                                    ?>
+                                        <li>
+                                            <?= htmlspecialchars($produit['nom']); ?> — 
+                                            <?= $produit['quantite']; ?> × 
+                                            <?= number_format($produit['prix_unitaire'], 2); ?>€
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="commande-btn-cell">
+                            <button class="commande-detail-toggle" onclick="toggleDetails(<?= $commande['id']; ?>)">Détails</button>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
         </table>
     <?php endif; ?>
 </section>
+
+<script>
+function toggleDetails(id) {
+    const row = document.getElementById('details-commande-' + id);
+    row.style.display = (row.style.display === "none") ? "table-row" : "none";
+}
+</script>
 
 </body>
 </html>

@@ -1,9 +1,27 @@
 <?php
 session_start();  // Démarrer la session
 
-// Vérifier si le panier est dans le localStorage
-if (!isset($_SESSION['panier'])) {
-    $_SESSION['panier'] = [];
+// Vérifier si le panier existe, sinon rediriger
+if (!isset($_SESSION['panier']) || empty($_SESSION['panier'])) {
+    echo "Votre panier est vide.";
+    exit();
+}
+
+// Connexion à la base de données
+require_once 'backend/Config.php';
+
+// Récupérer les produits du panier
+$panier = $_SESSION['panier'];
+$produits_panier = [];
+
+foreach ($panier as $produit_id => $quantite) {
+    $stmt = $pdo->prepare("SELECT * FROM produits WHERE id = ?");
+    $stmt->execute([$produit_id]);
+    $produit = $stmt->fetch();
+    if ($produit) {
+        $produit['quantite'] = $quantite;
+        $produits_panier[] = $produit;
+    }
 }
 
 ?>
@@ -21,7 +39,7 @@ if (!isset($_SESSION['panier'])) {
     <nav>
         <div class="logo">Déco Élégance</div>
         <ul>
-            <li><a href="index.html">Accueil</a></li>
+            <li><a href="index.php">Accueil</a></li>
             <li><a href="produits.php">Produits</a></li>
             <li><a href="panier.php">Panier</a></li>
             <li><a href="mon_compte.php">Mon compte</a></li>
@@ -32,45 +50,22 @@ if (!isset($_SESSION['panier'])) {
 <section class="panier container">
     <h2>Votre Panier</h2>
     <div class="panier-contenu">
-        <ul id="panier-list">
-            <!-- Les produits ajoutés au panier seront listés ici -->
+        <ul>
+            <?php
+            $total = 0;
+            foreach ($produits_panier as $produit):
+                $total += $produit['prix'] * $produit['quantite'];
+            ?>
+                <li>
+                    <p><?= htmlspecialchars($produit['nom']); ?> - <?= $produit['quantite']; ?> x <?= htmlspecialchars($produit['prix']); ?>€</p>
+                </li>
+            <?php endforeach; ?>
         </ul>
-        <p id="total">Total : 0€</p>
-        <a href="backend/valider_commande.php">Valider la commande</a>
+        <p><strong>Total : <?= $total; ?>€</strong></p>
+        <button class="ajout-panier"><a href="backend/valider_commandes.php">Valider la commande</a></button>
+        
     </div>
 </section>
-
-<script>
-    // Récupérer le panier du localStorage
-    let panier = JSON.parse(localStorage.getItem('panier')) || [];
-    const panierList = document.getElementById('panier-list');
-    const totalElement = document.getElementById('total');
-    
-    if (panier.length === 0) {
-        panierList.innerHTML = '<li>Votre panier est vide.</li>';
-    } else {
-        let total = 0;
-        panier.forEach(item => {
-            const productId = item.id;
-            const productQuantity = item.quantite;
-
-            // Récupérer les informations du produit depuis la base de données
-            fetch(`get_product.php?id=${productId}`)
-                .then(response => response.json())
-                .then(product => {
-                    const totalProductPrice = product.prix * productQuantity;
-                    total += totalProductPrice;
-
-                    const productItem = document.createElement('li');
-                    productItem.textContent = `${product.nom} - ${productQuantity} x ${product.prix}€ = ${totalProductPrice}€`;
-                    panierList.appendChild(productItem);
-
-                    // Mettre à jour le total
-                    totalElement.textContent = `Total : ${total}€`;
-                });
-        });
-    }
-</script>
 
 </body>
 </html>
