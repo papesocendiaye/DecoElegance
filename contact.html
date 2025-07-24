@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact | Déco Élégance</title>
+    <link rel="stylesheet" href="assets/css/styles.css">
+    
+    <!-- Intégration de Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=VOTRE_CLE_API&callback=initMap" async defer></script>
+</head>
+<body>
+
+<header>
+    <nav>
+        <div class="logo">Déco Élégance</div>
+        <ul>
+            <li><a href="index.html">Accueil</a></li>
+            <li><a href="produits.php">Produits</a></li>
+            <li><a href="services.html">Services</a></li>
+            <li><a href="realisations.html">Réalisations</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="a_propos.html">À propos</a></li>
+            <li><a href="contact.html" class="active">Contact</a></li>
+            <li><a href="mon_compte.php">Mon compte</a></li>
+            <li><a href="panier.php">Panier</a></li>
+        </ul>
+    </nav>
+</header>
+
+<section class="contact">
+    <div class="container">
+        <h2>Contactez-nous</h2>
+
+        <!-- Formulaire de Contact -->
+        <form action="index.html" method="POST">
+            <label for="nom">Nom :</label>
+            <input type="text" id="nom" name="nom" required>
+
+            <label for="email">Email :</label>
+            <input type="email" id="email" name="email" required>
+
+            <label for="message">Message :</label>
+            <textarea id="message" name="message" rows="4" required></textarea>
+
+            <button type="submit" class="btn">Envoyer</button>
+            <img style="width: 550px; height: 500px; margin-top: 40px;" src="assets\images\image.png" alt="">
+        </form>
+
+      
+        
+    </div>
+</section>
+
+<footer>
+    <p>&copy; 2024 Déco Élégance. Tous droits réservés.</p>
+</footer>
+
+<script>
+// Initialiser la carte avec le marqueur pour l'ESP
+function initMap() {
+    var espLocation = { lat: 14.7547, lng: -17.3660 }; // Coordonnées de l'ESP
+    var map = new google.maps.Map(document.getElementById('map'), {
+        zoom: 15,
+        center: espLocation
+    });
+    var marker = new google.maps.Marker({
+        position: espLocation,
+        map: map,
+        title: 'École Supérieure Polytechnique (ESP)'
+    });
+}
+</script>
+
+</body>
+</html>

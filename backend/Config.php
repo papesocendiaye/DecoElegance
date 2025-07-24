@@ -14,7 +14,6 @@ try {
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC
         ]
     );
-    echo "Connexion réussie à MySQL.";
 } catch (PDOException $e) {
     echo "Erreur de connexion MySQL : " . $e->getMessage();
     exit();
