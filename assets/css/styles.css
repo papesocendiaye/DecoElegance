@@ -459,6 +459,17 @@ body {
     font-size: 32px;
     color: #333;
     margin-bottom: 30px;
+.services-section {
+    background: #f9f9f9;
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.services-section h2 {
+    font-size: 2.4em;
+    margin-bottom: 40px;
+    color: #333;
+    font-weight: bold;
 }
 
 .services-grid {
@@ -486,6 +497,26 @@ body {
     height: auto;
     max-height: 200px;
     object-fit: cover;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 30px;
+}
+
+.service-card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 30px 20px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+}
+
+.service-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.15);
+}
+
+.service-card .icon {
+    font-size: 3em;
+    color: #f4b41a; /* Accent doré */
     margin-bottom: 15px;
 }
 
@@ -611,3 +642,29 @@ form button:hover {
 .btn-back-to-orders:hover {
     background-color: #218838;
 }
+    font-size: 1.5em;
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.service-card p {
+    font-size: 1em;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.service-card .btn {
+    display: inline-block;
+    background: #f4b41a;
+    color: #333;
+    padding: 12px 20px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.service-card .btn:hover {
+    background: #dca20d;
+}
+
