@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Vérifier que l'utilisateur est connecté
 if (!isset($_SESSION['utilisateur_id'])) {
     header('Location: mon_compte.php');
     exit();
@@ -9,7 +8,6 @@ if (!isset($_SESSION['utilisateur_id'])) {
 
 require_once 'backend/Config.php';
 
-// Vérifier que le service est passé en paramètre
 $service = isset($_GET['service']) ? $_GET['service'] : null;
 
 if (!$service) {
@@ -17,22 +15,17 @@ if (!$service) {
     exit();
 }
 
-// Logique pour traiter la réservation
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    // Récupérer les données du formulaire
     $utilisateur_id = $_SESSION['utilisateur_id'];
     $date_reservation = $_POST['date_reservation'];
     $heure_reservation = $_POST['heure_reservation'];
     $message = $_POST['message'];
 
-    // Connexion à la base de données
     require_once 'backend/Config.php';
 
-    // Insérer la réservation dans la base de données
     $stmt = $pdo->prepare("INSERT INTO reservations (utilisateur_id, service, date_reservation, heure_reservation, message) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([$utilisateur_id, $service, $date_reservation, $heure_reservation, $message]);
 
-    // Confirmation de la réservation
     header("Location: reservation_confirmation.php?service=$service");
     exit();
 }
