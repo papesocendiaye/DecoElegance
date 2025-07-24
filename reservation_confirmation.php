@@ -1,7 +1,6 @@
 <?php
 session_start();
 
-// Vérifier si l'utilisateur est connecté
 if (!isset($_SESSION['utilisateur_id'])) {
     header('Location: mon_compte.php');
     exit();
@@ -9,41 +8,33 @@ if (!isset($_SESSION['utilisateur_id'])) {
 
 require_once 'backend/Config.php';
 
-// Vérifier que l'ID de réservation est passé dans l'URL
 if (isset($_GET['reservation_id'])) {
     $reservation_id = $_GET['reservation_id'];
 
-    // Récupérer les détails de la réservation pour l'utilisateur
     $stmt = $pdo->prepare("SELECT * FROM reservations WHERE id = ? AND utilisateur_id = ?");
     $stmt->execute([$reservation_id, $_SESSION['utilisateur_id']]);
     $reservation = $stmt->fetch();
 
-    // Vérifier si la réservation existe
     if ($reservation) {
-        // Initialiser les variables si la réservation existe
         $service = $reservation['service'];
         $date_reservation = $reservation['date_reservation'];
         $heure_reservation = $reservation['heure_reservation'];
         $message = $reservation['message'];
     } else {
-        // Si la réservation n'est pas trouvée, rediriger ou afficher un message d'erreur
         echo "Réservation invalide ou vous n'avez pas accès à cette réservation.";
         exit();
     }
 } else {
-    // Si l'ID de réservation est manquant dans l'URL, récupérer la dernière réservation
     $stmt = $pdo->prepare("SELECT * FROM reservations WHERE utilisateur_id = ? ORDER BY id DESC LIMIT 1");
     $stmt->execute([$_SESSION['utilisateur_id']]);
     $reservation = $stmt->fetch();
 
     if ($reservation) {
-        // Initialiser les variables si la réservation existe
         $service = $reservation['service'];
         $date_reservation = $reservation['date_reservation'];
         $heure_reservation = $reservation['heure_reservation'];
         $message = $reservation['message'];
     } else {
-        // Si aucune réservation n'est trouvée
         echo "Aucune réservation trouvée.";
         exit();
     }
